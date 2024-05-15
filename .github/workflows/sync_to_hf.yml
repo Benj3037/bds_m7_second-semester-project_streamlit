@@ -1,0 +1,27 @@
+name: sync_to_hf_hub
+on:
+
+  # To run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # Schedule the workflow to run at 02:01 UTC everyday
+  schedule:
+    - cron: '01 02 * * *' 
+  
+  # Push events to the main branch
+  push:
+    branches: [main]
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to hub
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: git push --force https://HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/Camillahannesbo/electricity_price main
