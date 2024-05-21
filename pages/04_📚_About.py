@@ -22,7 +22,9 @@ st.markdown("""
 # PART 3.1: Sidebar settings
 with st.sidebar:
     
-    st.write("© 2024 Camilla Dyg Hannesbo, Benjamin Ly, Tobias Moesgård Jensen")
+    st.markdown("""<div style='text-align: center;'>
+  <p>© 2024 Camilla Dyg Hannesbo, Benjamin Ly, Tobias Moesgård Jensen</p>
+</div>""", unsafe_allow_html=True)
 
 
 with st.expander("📕 **Data Engineering and Machine Learning Operations in Business**"):
