@@ -24,7 +24,6 @@ The Explore page enables a more in-depth exploration of the electricity price pr
 
 Several visualizations showcasing the actual electricity prices and the prices predicted by the model enable the models' performances to be translated from technical to non-technical audiences:
 - An interactive linechart of the predicted electricity prices compared with the actual electricity prices.
-- Time Series Plot over the total time period visualizing the actual and predicted electricity prices.
 - Box Plot of Electricity Prices visualizing the actual and predicted electricity prices.
 - Histogram displaying the actual and predicted electricity prices.
 
