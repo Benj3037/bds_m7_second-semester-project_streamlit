@@ -15,15 +15,11 @@ There are four files in this repository representing each page in the Streamlit 
 4. About
 
 ### 🌦Price Prediction
-The main page showcases the electricity price predictor for area DK1 in an interactive linechart. The linechart visualizes the forecasted electricity prices for the coming days enabling the user to hover over the line to see the exact price at a specific time.
-The user can change the date range from 1-5 in the sidebar.
-
+The main page showcases the electricity price predictor for DK1. The page includes two visualizations of the forecasted electricity prices for the coming days where the user can change the date range from 1-5 in the sidebar. Along with a matrix of hourly price intervals, the page showcases an interactive time-series plot in the form of a line chart enabling the user to hover over the line to see the exact price at a specific time.  
+ 
 ### 🌎Explore
-The Explore page enables a more in-depth exploration of the electricity price prediction. The user can change the desired date range from 1-5. The page enables the user to choose between several different visualizations:
-- Matrix for forecasted electricity prices for the comming days. Each column represents a day and each row represents a time of day.
-
-Several visualizations showcasing the actual electricity prices and the prices predicted by the model enable the models' performances to be translated from technical to non-technical audiences:
-- An interactive linechart of the predicted electricity prices compared with the actual electricity prices.
+The Explore page enables a more in-depth exploration of the electricity price prediction. The user can change the desired date range from 1-5. The page enables the user to choose between several different visualizations showcasing the actual electricity prices and the prices predicted by the model.The visualizations enable the models' performances to be translated from technical to non-technical audiences:
+- An interactive line chart of the predicted electricity prices compared with the actual electricity prices.
 - Box Plot of Electricity Prices visualizing the actual and predicted electricity prices.
 - Histogram displaying the actual and predicted electricity prices.
 
