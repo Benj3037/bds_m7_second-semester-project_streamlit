@@ -160,8 +160,6 @@ st.markdown(
     - **Data Overview**: Get a summary of the dataset, including the number of records, range of dates, and key statistics on electricity prices.
     - **Visualizations**: Interactive charts and graphs such as time series plots, histograms, and box plots to analyze trends, seasonal patterns, and price distributions.
     - **Feature Analysis**: Examine correlations between electricity prices and various features like weather conditions, demand, and production sources.
-    - **Filtering and Sorting**: Customize your view by filtering data by date ranges, regions, or other relevant criteria.
-    - **Statistical Summaries**: Quick access to mean, median, standard deviation, and other statistical measures of electricity prices.
 
     Explore these features to uncover patterns and insights that will aid in accurately predicting electricity prices.
     """
@@ -225,54 +223,14 @@ st.markdown(
 # Display the predictions based on the user selection
 visualization_option = st.selectbox(
     "Select Visualization 🎨", 
-    ["Matrix for forecasted Electricity Prices", 
-    "Time Series Plot over the total time period",
-    "Linechart for historical forcasted electricity prices vs actual electricity prices",
+    ["Linechart for historical predicted electricity prices vs actual electricity prices",
     "Box Plot of Electricity Prices",
     "Histogram of electricity prices"
     ]
 )
 
-# Matrix based on user selection
-if visualization_option == "Matrix for forecasted Electricity Prices":
-    # Prepare the data for the matrix
-    data = load_predictions()
-    data['Date'] = data['time'].dt.strftime('%Y-%m-%d')
-    data['Time of day'] = data['time'].dt.strftime('%H:%M')
-    data.drop(columns=['time'], inplace=True)
-
-    # Pivot the DataFrame
-    pivot_df = data.pivot(index='Time of day', columns='Date', values='prediction')
-
-    # Display the matrix
-    st.write(pivot_df)  
-
-
-elif visualization_option == "Time Series Plot over the total time period":
-    # Create the Altair chart
-    chart = alt.Chart(load_predictions_vs_actuals()).transform_fold(
-        ['actuals', 'prediction'],
-        as_=['Type', 'Value']
-    ).mark_line().encode(
-        x=alt.X('datetime:T', title='Date and Time'),
-        y=alt.Y('Value:Q', title='Electricity Price (DKK)'),
-        color=alt.Color('Type:N', title='Type'),
-        tooltip=[alt.Tooltip('datetime:T', title='Date', format='%Y-%m-%d'), 
-                alt.Tooltip('datetime:T', title='Time', format='%H:%M'), 
-                alt.Tooltip('Value:Q', title='Actuals (DKK)', format='.4f'),
-                alt.Tooltip('prediction:Q', title='Prediction (DKK)', format='.4f')
-                ]
-    ).properties(
-        title='Actual vs Prediction over time',
-        width=600,
-        height=400
-    ).interactive()  # Make the chart interactive
-
-    # Display the chart
-    st.altair_chart(chart, use_container_width=True)
-
 # Linechart based on user selection
-elif visualization_option == "Linechart for historical forcasted electricity prices vs actual electricity prices":
+if visualization_option == "Linechart for historical predicted electricity prices vs actual electricity prices":
     
     min_value = 1
     max_value = 5
@@ -333,8 +291,8 @@ elif visualization_option == "Histogram of electricity prices":
     df_melted = load_predictions_vs_actuals().melt(id_vars=['datetime'], value_vars=['actuals', 'prediction'], var_name='Type', value_name='Electricity Price')
 
     # Create the histogram using Altair
-    hist_actuals = alt.Chart(df_melted[df_melted['Type'] == 'actuals']).mark_bar(opacity=0.7).encode(
-        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price'),
+    hist_actuals = alt.Chart(df_melted[df_melted['Type'] == 'actuals']).mark_bar(opacity=0.7, color='blue').encode(
+        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price (DKK)'),
         alt.Y('count()', title='Count'),
         alt.Color('Type:N', legend=alt.Legend(title="Type", orient="top-right"))
     ).properties(
@@ -343,20 +301,22 @@ elif visualization_option == "Histogram of electricity prices":
     ).interactive()
 
     hist_predictions = alt.Chart(df_melted[df_melted['Type'] == 'prediction']).mark_bar(opacity=0.7, color='orange').encode(
-        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price'),
-        alt.Y('count()', title='Count'),
+        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price (DKK)'),
+        alt.Y('count()', title='Count', axis=None),
         alt.Color('Type:N', legend=alt.Legend(title="Type", orient="top-right"))
     ).properties(
         width=600,
         height=400
     ).interactive()
 
+    # Create the KDE overlays using Altair
     hist_actuals_kde = alt.Chart(df_melted[df_melted['Type'] == 'actuals']).transform_density(
         density='Electricity Price',
         as_=['Electricity Price', 'density']
     ).mark_line(color='blue').encode(
         x='Electricity Price:Q',
-        y='density:Q'
+        y=alt.Y('density:Q', axis=None),
+        tooltip=[alt.Tooltip('density:Q', title='Density')]
     )
 
     hist_predictions_kde = alt.Chart(df_melted[df_melted['Type'] == 'prediction']).transform_density(
@@ -364,22 +324,50 @@ elif visualization_option == "Histogram of electricity prices":
         as_=['Electricity Price', 'density']
     ).mark_line(color='orange').encode(
         x='Electricity Price:Q',
-        y='density:Q'
+        y=alt.Y('density:Q', axis=None),
+        tooltip=[alt.Tooltip('density:Q', title='Density')]
     )
 
-    histogram = alt.layer(hist_actuals, hist_actuals_kde, hist_predictions, hist_predictions_kde).resolve_scale(y='shared')
+    # Combine the histograms and KDE overlays, with separate y-axes
+    histogram = alt.layer(
+        hist_actuals, hist_predictions
+    ).resolve_scale(
+        y='independent'
+    ).properties(
+        width=600,
+        height=400
+    )
 
-    st.altair_chart(histogram, use_container_width=True)
+    kde_overlay = alt.layer(
+        hist_actuals_kde, hist_predictions_kde
+    ).resolve_scale(
+        y='independent'
+    ).properties(
+        width=600,
+        height=400
+    )
 
-    # Histogram of electricity prices
-    st.write("### Histogram of Electricity Prices")
-    plt.figure(figsize=(10, 6))
-    sns.histplot(load_predictions_vs_actuals()['actuals'], kde=True, color='blue', label='Actuals')
-    sns.histplot(load_predictions_vs_actuals()['prediction'], kde=True, color='orange', label='Predictions')
-    plt.xlabel('Electricity Price')
-    plt.title('Distribution of Electricity Prices')
-    plt.legend()
-    st.pyplot(plt)
+    # Combine the histogram and KDE overlay with dual axes
+    combined_chart = alt.layer(histogram, kde_overlay).resolve_scale(
+        y='independent'
+    ).properties(
+        title='Actual vs Prediction Electricity Prices with KDE',
+        width=600,
+        height=400
+    )
+
+    # Display the combined chart in Streamlit
+    st.altair_chart(combined_chart, use_container_width=True)
+
+    # # Histogram of electricity prices
+    # st.write("### Histogram of Electricity Prices")
+    # plt.figure(figsize=(10, 6))
+    # sns.histplot(load_predictions_vs_actuals()['actuals'], kde=True, color='blue', label='Actuals')
+    # sns.histplot(load_predictions_vs_actuals()['prediction'], kde=True, color='orange', label='Predictions')
+    # plt.xlabel('Electricity Price')
+    # plt.title('Distribution of Electricity Prices')
+    # plt.legend()
+    # st.pyplot(plt)
 
 st.write(3 * "-")
 st.markdown(

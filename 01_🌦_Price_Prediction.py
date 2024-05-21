@@ -131,21 +131,41 @@ st.write(3 * "-")
 
 filtered_predictions_df = predictions_df.head(date_range * 24)
 
-# Linechart based on user selection
-# Create Altair chart with line and dots
-chart = alt.Chart(filtered_predictions_df).mark_line(point=True).encode(
-    x='time:T',
-    y='prediction:Q',
-    tooltip=[alt.Tooltip('time:T', title='Date', format='%d-%m-%Y'), 
-             alt.Tooltip('time:T', title='Time', format='%H:%M'), 
-             alt.Tooltip('prediction:Q', title='Spot Price (DKK)', format='.2f')
-            ]
-)
-# Make a markdown description for the line chart
-st.markdown("""
-        This is a line chart of the forecasted electricity prices for comming days. The user can change the date range in the sidebar.
-        \n The plot is interactive which ables the user to hover over the line to see the exact price at a specific time.
-""") 
+# Create two columns
+col1, col2 = st.columns([4, 1])
 
-# Display the chart
-st.altair_chart(chart, use_container_width=True)
+# Place line chart in the first column
+with col1:
+
+    # Linechart based on user selection
+    # Create Altair chart with line and dots
+    chart = alt.Chart(filtered_predictions_df).mark_line(point=True).encode(
+        x='time:T',
+        y='prediction:Q',
+        tooltip=[alt.Tooltip('time:T', title='Date', format='%d-%m-%Y'), 
+                alt.Tooltip('time:T', title='Time', format='%H:%M'), 
+                alt.Tooltip('prediction:Q', title='Spot Price (DKK)', format='.2f')
+                ]
+    )
+    # Make a markdown description for the line chart
+    st.markdown("""
+            This is a line chart of the forecasted electricity prices for comming days. The user can change the date range in the sidebar.
+            \n The plot is interactive which ables the user to hover over the line to see the exact price at a specific time.
+    """) 
+
+    # Display the chart
+    st.altair_chart(chart, use_container_width=True)
+
+# Place DataFrame representation in the second column
+with col2:
+
+    # Prepare the data for the matrix
+    filtered_predictions_df['Date'] = filtered_predictions_df['time'].dt.strftime('%Y-%m-%d')
+    filtered_predictions_df['Time of day'] = filtered_predictions_df['time'].dt.strftime('%H:%M')
+    filtered_predictions_df.drop(columns=['time'], inplace=True)
+
+    # Pivot the DataFrame
+    pivot_df = filtered_predictions_df.pivot(index='Time of day', columns='Date', values='prediction')
+
+    # Display the matrix
+    st.write(pivot_df) 

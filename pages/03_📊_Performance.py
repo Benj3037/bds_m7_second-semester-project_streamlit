@@ -18,12 +18,6 @@ st.set_page_config(
 # Title for the streamlit app
 st.title('📊 Performance')
 
-# Subtitle
-st.markdown("""
-            Substitle. 
-""")
-
-
 # PART 3.1: Sidebar settings
 with st.sidebar:
     
