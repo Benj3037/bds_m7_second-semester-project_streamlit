@@ -8,16 +8,19 @@ The objective is to make a functional frontend application that visually demonst
 This project aims to build a prediction system that forecasts the electricity prices in Denmark (area DK1) based on weather conditions, previous prices, and the Danish calendar.
 
 ## Structure:
+There are four files in this repository representing each page in the Streamlit app:
 1. Price Prediction
 2. Explore
 3. Performance
 4. About
 
 ### 🌦Price Prediction
-The main page showcases the electricity price predictor for area DK1 in an interactive linechart. The linechart visualise the forecasted electricity prices for the coming days enabling the user to hover over the line to see the exact price at a specific time.
-The user can change the date range in the sidebar.
+The main page showcases the electricity price predictor for area DK1 in an interactive linechart. The linechart visualizes the forecasted electricity prices for the coming days enabling the user to hover over the line to see the exact price at a specific time.
+The user can change the date range from 1-5 in the sidebar.
 
 ### 🌎Explore
+The Explore page enables a more in-depth exploration of the electricity price prediction. The user can change the desired date range from 1-5. The page enables the user to choose between several different visualizations:
+- Matrix for forecasted electricity prices for the comming days. Each column represents a day and each row represents a time of day.
 
 Actual and predicted prices are displayed for translating the models' performances from technical to non-technical audiences.
 
