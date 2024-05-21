@@ -8,7 +8,7 @@ The objective is to make a functional frontend application that visually demonst
 This project aims to build a prediction system that forecasts the electricity prices in Denmark (area DK1) based on weather conditions, previous prices, and the Danish calendar.
 
 ## Structure:
-There are four files in this repository representing each page in the Streamlit app:
+There are four Python files in this repository representing each page in the Streamlit app:
 1. Price Prediction
 2. Explore
 3. Performance
