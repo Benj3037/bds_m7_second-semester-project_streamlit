@@ -22,7 +22,7 @@ def get_feature_view():
     project = hopsworks.login()
     fs = project.get_feature_store()
     feature_view = fs.get_feature_view(
-        name='electricity_training_feature_view',
+        name='dk1_electricity_training_feature_view',
         version=1
     )
 
@@ -105,7 +105,13 @@ with st.sidebar:
 
     date_range = st.sidebar.slider("Select Date Range", min_value=min_value, max_value=max_value, value=default)
 
-    st.write("© 2024 Camilla Dyg Hannesbo, Benjamin Ly, Tobias Moesgård Jensen")
+    if st.button("Clear Cache"):
+        st.cache_data.clear()
+
+    st.markdown("""<div style='text-align: center;'>
+  <p>© 2024 Camilla Dyg Hannesbo, Benjamin Ly, Tobias Moesgård Jensen</p>
+</div>""", unsafe_allow_html=True)
+
 
 # PART 4: Main content
 
