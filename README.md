@@ -21,6 +21,7 @@ The user can change the date range from 1-5 in the sidebar.
 ### 🌎Explore
 The Explore page enables a more in-depth exploration of the electricity price prediction. The user can change the desired date range from 1-5. The page enables the user to choose between several different visualizations:
 - Matrix for forecasted electricity prices for the comming days. Each column represents a day and each row represents a time of day.
+- An interactive linechart 
 
 Actual and predicted prices are displayed for translating the models' performances from technical to non-technical audiences.
 
