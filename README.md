@@ -21,17 +21,18 @@ The user can change the date range from 1-5 in the sidebar.
 ### 🌎Explore
 The Explore page enables a more in-depth exploration of the electricity price prediction. The user can change the desired date range from 1-5. The page enables the user to choose between several different visualizations:
 - Matrix for forecasted electricity prices for the comming days. Each column represents a day and each row represents a time of day.
-- An interactive linechart 
 
-Actual and predicted prices are displayed for translating the models' performances from technical to non-technical audiences.
+Several visualizations showcasing the actual electricity prices and the prices predicted by the model enable the models' performances to be translated from technical to non-technical audiences:
+- An interactive linechart of the predicted electricity prices compared with the actual electricity prices.
+- Time Series Plot over the total time period visualizing the actual and predicted electricity prices.
+- Box Plot of Electricity Prices visualizing the actual and predicted electricity prices.
+- Histogram displaying the actual and predicted electricity prices.
 
 ### 📊Performance
 The Performance page visualizes the models' performance using validation metrics RMSE, MAE, MSE, and R^2 to demonstrate the performance for a technical audience.  
 
 ### 📚About
 The About page dives into the Learning Objectives the project is demonstrating and the main objective the frontend application aims to fulfill. 
-
-
 
 ## Frontend Application on 🤗 Hugging Face Spaces:
 The final Streamlit app is hosted on [Huggingface](https://huggingface.co/spaces/Camillahannesbo/Electricity_price).
