@@ -4,6 +4,7 @@ import pandas as pd
 import hopsworks 
 import joblib
 import altair as alt
+from st_pages import Page, show_pages, add_page_title
 
 # Import the functions from the features folder. This is the functions we have created to generate features for weather measures and calendar
 from features import weather_measures, calendar 
@@ -78,6 +79,15 @@ st.set_page_config(
     page_title="Electricity Price Prediction",
     page_icon="🌦",
     layout="wide"
+)
+
+show_pages(
+    [
+        Page("app.py", "Price Prediction", "🌦"),
+        Page("pages/02_🌎_Explore.py", "Explore"),
+        Page("pages/03_📊_Performance.py", "Performance"),
+        Page("pages/04_📚_About.py", "About"),
+    ]
 )
 
 # PART 3.1: Sidebar settings
