@@ -1,11 +1,11 @@
 ---
 title: Electricity Price
-emoji: 🦀
+emoji: 🌦️
 colorFrom: yellow
 colorTo: indigo
 sdk: streamlit
 sdk_version: 1.34.0
-app_file: app.py
+app_file: 01_🌦_Price_Prediction.py
 pinned: false
 ---
 

@@ -81,14 +81,14 @@ st.set_page_config(
     layout="wide"
 )
 
-show_pages(
-    [
-        Page("app.py", "Price Prediction", "🌦"),
-        Page("pages/02_🌎_Explore.py", "Explore"),
-        Page("pages/03_📊_Performance.py", "Performance"),
-        Page("pages/04_📚_About.py", "About"),
-    ]
-)
+# show_pages(
+#     [
+#         Page("app.py", "Price Prediction", "🌦"),
+#         Page("pages/02_🌎_Explore.py", "Explore"),
+#         Page("pages/03_📊_Performance.py", "Performance"),
+#         Page("pages/04_📚_About.py", "About"),
+#     ]
+# )
 
 # PART 3.1: Sidebar settings
 with st.sidebar:
