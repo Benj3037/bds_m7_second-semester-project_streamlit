@@ -24,4 +24,4 @@ jobs:
         env:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/Camillahannesbo/electricity_price main
+        run: git push --force https://HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/tobiasmj97/sp_forecast_electricity_prices main
