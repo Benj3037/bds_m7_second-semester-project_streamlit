@@ -1,3 +1,14 @@
+---
+title: Electricity Price
+emoji: 🦀
+colorFrom: yellow
+colorTo: indigo
+sdk: streamlit
+sdk_version: 1.34.0
+app_file: app.py
+pinned: false
+---
+
 # <span style="font-width:bold; font-size: 3rem; color:#2656a3;">**Msc. BDS - M7 Second Semester Project Streamlit** 
 EXAM ASSIGNMENT - Repository for Streamlit belonging to the repository [bds_m7_second-semester-project](https://github.com/tobiasmj97/bds_m7_second-semester-project).
 
