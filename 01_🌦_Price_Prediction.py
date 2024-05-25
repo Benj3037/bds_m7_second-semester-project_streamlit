@@ -7,7 +7,7 @@ import altair as alt
 from st_pages import Page, show_pages, add_page_title
 
 # Import the functions from the features folder. This is the functions we have created to generate features for weather measures and calendar
-from features import weather_measures, calendar 
+from features import electricity_prices, weather_measures, calendar
 
 # PART 2: Defining the functions for the Streamlit app
 # We want to cache several functions to avoid running them multiple times
@@ -34,11 +34,11 @@ def get_model():
     project = hopsworks.login()
     mr = project.get_model_registry()
     retrieved_model = mr.get_model(
-        name="electricity_price_prediction_model",
+        name="xgb_electricity_price_model",
         version=1
     )
     saved_model_dir = retrieved_model.download()
-    retrieved_xgboost_model = joblib.load(saved_model_dir + "/dk_electricity_model.pkl")
+    retrieved_xgboost_model = joblib.load(saved_model_dir + "/xgb_electricity_price_model.pkl")
 
     return retrieved_xgboost_model
 
@@ -50,21 +50,43 @@ def load_new_data():
     )
 
     # Fetching danish calendar
-    calendar_df = calendar.dk_calendar()
+    calendar_df = calendar.calendar_denmark(
+        freq='H',
+    )
 
-    # Merging the weather forecast and calendar dataframes
-    new_data = pd.merge(weather_forecast_df, calendar_df, how='inner', left_on='date', right_on='date')
+    # Fetching the moving average of the electricity prices
+    electricity_price_window_df = electricity_prices.electricity_prices_window(
+        historical=False,
+        area=["DK1"],
+    )
+
+    # Merging the weather forecast and electricity price window dataframes
+    new_data = pd.merge(electricity_price_window_df, weather_forecast_df, how='inner', left_on='timestamp', right_on='timestamp')
+
+    # Merging the new data and calendar dataframes
+    new_data = pd.merge(new_data, calendar_df, how='inner', left_on='timestamp', right_on='timestamp')
+
+    # Dropping and renaming columns for the new data with weather forecast and calendar
+    new_data.drop(columns=['datetime_y', 'hour_y', 'date_y','datetime_x'], inplace=True)
+    new_data.rename(columns={
+        'date_x': 'date', 
+        'hour_x': 'hour'}, inplace=True)
 
     return new_data
 
 def load_predictions():
     # Drop columns 'date', 'datetime', 'timestamp' from the DataFrame 'new_data'
-    data = load_new_data().drop(columns=['date', 'datetime', 'timestamp'])
+    data = load_new_data()[['hour', 'prev_1w_mean', 'prev_2w_mean', 'prev_4w_mean', 'prev_6w_mean',
+       'prev_8w_mean', 'prev_12w_mean', 'temperature_2m',
+       'relative_humidity_2m', 'precipitation', 'rain', 'snowfall',
+       'weather_code', 'cloud_cover', 'wind_speed_10m', 'wind_gusts_10m',
+       'dayofweek', 'day', 'month', 'year', 'workday']]
+
 
     # Load the model and make predictions
     predictions = get_model().predict(data)
 
-    # Create a DataFrame with the predictions and the time
+    # # Create a DataFrame with the predictions and the time
     predictions_data = {
         'prediction': predictions,
         'time': load_new_data()["datetime"],
@@ -80,15 +102,6 @@ st.set_page_config(
     page_icon="🌦",
     layout="wide"
 )
-
-# show_pages(
-#     [
-#         Page("app.py", "Price Prediction", "🌦"),
-#         Page("pages/02_🌎_Explore.py", "Explore"),
-#         Page("pages/03_📊_Performance.py", "Performance"),
-#         Page("pages/04_📚_About.py", "About"),
-#     ]
-# )
 
 # PART 3.1: Sidebar settings
 with st.sidebar:

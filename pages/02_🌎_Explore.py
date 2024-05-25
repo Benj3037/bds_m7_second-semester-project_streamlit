@@ -35,37 +35,59 @@ def get_model():
     project = hopsworks.login()
     mr = project.get_model_registry()
     retrieved_model = mr.get_model(
-        name="electricity_price_prediction_model",
+        name="xgb_electricity_price_model",
         version=1
     )
     saved_model_dir = retrieved_model.download()
-    retrieved_xgboost_model = joblib.load(saved_model_dir + "/dk_electricity_model.pkl")
+    retrieved_xgboost_model = joblib.load(saved_model_dir + "/xgb_electricity_price_model.pkl")
 
     return retrieved_xgboost_model
 
 # Function to load the dataset
 def load_new_data():
     # Fetching weather forecast measures for the next 5 days
-    weather_forecast_df = weather_measures.forecast_weather_measures(
+    forecast_weather_df = weather_measures.forecast_weather_measures(
         forecast_length=5
     )
 
     # Fetching danish calendar
-    calendar_df = calendar.dk_calendar()
+    calendar_df = calendar.calendar_denmark(
+        freq='H',
+    )
 
-    # Merging the weather forecast and calendar dataframes
-    new_data = pd.merge(weather_forecast_df, calendar_df, how='inner', left_on='date', right_on='date')
+    # Fetching the moving average of the electricity prices
+    electricity_price_window_df = electricity_prices.electricity_prices_window(
+        historical=False,
+        area=["DK1"],
+    )
+
+    # Merging the weather forecast and electricity price window dataframes
+    new_data = pd.merge(electricity_price_window_df, forecast_weather_df, how='inner', left_on='timestamp', right_on='timestamp')
+
+    # Merging the new data and calendar dataframes
+    new_data = pd.merge(new_data, calendar_df, how='inner', left_on='timestamp', right_on='timestamp')
+
+    # Dropping and renaming columns for the new data with weather forecast and calendar
+    new_data.drop(columns=['datetime_y', 'hour_y', 'date_y','datetime_x'], inplace=True)
+    new_data.rename(columns={
+        'date_x': 'date', 
+        'hour_x': 'hour'}, inplace=True)
 
     return new_data
 
 def load_predictions():
     # Drop columns 'date', 'datetime', 'timestamp' from the DataFrame 'new_data'
-    data = load_new_data().drop(columns=['date', 'datetime', 'timestamp'])
+    data = load_new_data()[['hour', 'prev_1w_mean', 'prev_2w_mean', 'prev_4w_mean', 'prev_6w_mean',
+       'prev_8w_mean', 'prev_12w_mean', 'temperature_2m',
+       'relative_humidity_2m', 'precipitation', 'rain', 'snowfall',
+       'weather_code', 'cloud_cover', 'wind_speed_10m', 'wind_gusts_10m',
+       'dayofweek', 'day', 'month', 'year', 'workday']]
+
 
     # Load the model and make predictions
     predictions = get_model().predict(data)
 
-    # Create a DataFrame with the predictions and the time
+    # # Create a DataFrame with the predictions and the time
     predictions_data = {
         'prediction': predictions,
         'time': load_new_data()["datetime"],
@@ -79,7 +101,7 @@ def load_predictions():
 def load_all_data():
     
     # Fetching historical electricity prices for area DK1 from January 1, 2022
-    electricity_df = electricity_prices.electricity_prices(
+    electricity_price_df = electricity_prices.electricity_prices(
         historical=True, 
         area=["DK1"], 
         start='2022-01-01'
@@ -92,22 +114,57 @@ def load_all_data():
     )
 
     # Fetching weather forecast measures for the next 5 days
-    weather_forecast_df = weather_measures.forecast_weather_measures(
+    forecast_weather_df = weather_measures.forecast_weather_measures(
         forecast_length=5
     )
 
     # Fetching danish calendar
-    calendar_df = calendar.dk_calendar()
+    danish_calendar_df = calendar.calendar_denmark(
+        freq='D',
+        start='2020-01-01', 
+        end=pd.Timestamp(pd.Timestamp.now().year + 1, 12, 31).date()
+    )
+
+    # Fetching electricity_price_window_df
+    electricity_price_window_df = electricity_prices.electricity_prices_window(
+        historical=True,
+        area=["DK1"],
+        start='2020-01-01'
+    )
 
     # Concatenate the historical weather and weather forecast DataFrames
-    weather = pd.concat([historical_weather_df, weather_forecast_df])
+    weather = pd.concat([historical_weather_df, forecast_weather_df])
 
     # Merging the weather forecast and calendar dataframes
-    data = pd.merge(electricity_df, weather, how='right', left_on='timestamp', right_on='timestamp')
-    data = data.drop(columns=['datetime_x', 'date_x', 'hour_x'])
-    data = data.rename(columns={'datetime_y': 'datetime', 'date_y': 'date', 'hour_y': 'hour'})
+    data = pd.merge(electricity_price_df, danish_calendar_df, how='inner', left_on='date', right_on='date')
+    
+    # Dropping and renameing columns
+    data.drop(columns=['datetime_y', 'hour_y', 'timestamp_y'], inplace=True)
+    data.rename(columns={
+        'timestamp_x': 'timestamp', 
+        'datetime_x': 'datetime', 
+        'hour_x': 'hour'
+    }, inplace=True)
 
-    data = pd.merge(data, calendar_df, how='inner', left_on='date', right_on='date')
+    # Merging the electricity_df and calendar_df with the historical weather data
+    data = pd.merge(data, historical_weather_df, how='inner', left_on='timestamp', right_on='timestamp')
+    # Dropping and renameing columns
+    data.drop(columns=['datetime_y', 'date_y', 'hour_y'], inplace=True)
+    data.rename(columns={
+        'datetime_x': 'datetime', 
+        'date_x': 'date', 
+        'hour_x': 'hour', 
+    }, inplace=True)
+    
+    # Merging the electricity_df and calendar_df and historical_weather_df with the electricity window 
+    data = pd.merge(data, electricity_price_window_df, how='inner', left_on='timestamp', right_on='timestamp')
+
+    # Dropping and renameing columns
+    data.drop(columns=['datetime_y'], inplace=True)
+    data.rename(columns={
+        'datetime_x': 'datetime', 
+    }, inplace=True)
+
     data = data.sort_values(by='datetime', ascending=False) 
 
     return data
@@ -117,8 +174,13 @@ def load_predictions_vs_actuals():
     data = load_all_data()
 
     # Drop columns 'date', 'datetime', 'timestamp' from the DataFrame 'data'
-    y = data['dk1_spotpricedkk_kwh']
-    X = data.drop(columns=['dk1_spotpricedkk_kwh', 'date', 'datetime', 'timestamp'])
+    X2 = data.drop(columns=['date', 'datetime', 'timestamp'])
+    X = X2[['hour', 'prev_1w_mean', 'prev_2w_mean', 'prev_4w_mean', 'prev_6w_mean',
+       'prev_8w_mean', 'prev_12w_mean', 'temperature_2m',
+       'relative_humidity_2m', 'precipitation', 'rain', 'snowfall',
+       'weather_code', 'cloud_cover', 'wind_speed_10m', 'wind_gusts_10m',
+       'dayofweek', 'day', 'month', 'year', 'workday']]
+    y = X2.pop('dk1_spotpricedkk_kwh')
 
     # Load the model and make predictions
     predictions = get_model().predict(X)
@@ -132,13 +194,6 @@ def load_predictions_vs_actuals():
 
     predictions_df = pd.DataFrame(predictions_data)#.sort_values(by='datetime', ascending=False)
     predictions_df.dropna(inplace=True)
-
-    # # Number of days to display
-    # days_before = 5
-    # last_indices = (24 * days_before)
-
-    # # Display the predictions
-    # predictions_df = predictions_df.iloc[:last_indices]
 
     return predictions_df
 
@@ -379,7 +434,17 @@ st.markdown(
 
 
 # Drop 'datetime', 'date', and 'timestamp' columns
-drop_for_corr = load_all_data().drop(columns=['timestamp','date','datetime'])
+drop_for_corr = load_all_data().drop(columns=[ 'timestamp', 
+                                           'date',
+                                           'datetime', 
+                                           'prev_1w_mean', 
+                                           'prev_2w_mean', 
+                                           'prev_4w_mean', 
+                                           'prev_6w_mean', 
+                                           'prev_8w_mean', 
+                                           'prev_12w_mean', 
+                                           ]
+)
 
 # Create the correlation matrix
 correlation_matrix = drop_for_corr.corr()
