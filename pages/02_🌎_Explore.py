@@ -253,10 +253,6 @@ st.markdown(
     """
 )
 
-# Total number of records
-total_records = len(load_predictions_vs_actuals())
-st.write(f"**Total number of records:** {total_records}")
-
 # Range of dates
 start_date = load_predictions_vs_actuals()['datetime'].min().strftime('%Y-%m-%d')
 end_date = load_predictions_vs_actuals()['datetime'].max().strftime('%Y-%m-%d')
@@ -265,7 +261,7 @@ st.write(f"**Date range:** {start_date} to {end_date}")
 # Key statistics on electricity prices
 price_stats = load_predictions_vs_actuals()[['actuals', 'prediction']].describe()
 st.write("**Key statistics on electricity prices:**")
-st.write(price_stats)
+st.write(price_stats.T)
 
 st.write(3 * "-")
 st.markdown(
