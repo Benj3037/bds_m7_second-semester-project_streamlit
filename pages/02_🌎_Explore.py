@@ -221,8 +221,6 @@ st.markdown(
     """, unsafe_allow_html=True
 )
 
-
-
 # PART 3.1: Sidebar settings
 with st.sidebar:
     
