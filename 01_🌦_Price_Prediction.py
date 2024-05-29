@@ -142,7 +142,7 @@ with st.sidebar:
 # Title for the streamlit app
 st.title('Electricity Price Prediction 🌦')
 
-# Subtitle
+# Description of the Explore page
 st.markdown("""
             Welcome to the electricity price predicter for DK1. 
             \n The forecasted electricity prices are based on weather conditions, previous prices, and Danish holidays.

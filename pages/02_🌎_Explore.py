@@ -208,18 +208,20 @@ st.set_page_config(
 # Title for the streamlit app
 st.title('🌎 Explore')
 
-# Subtitle
+# Description of the Explore page
 st.markdown(
     """
-    Welcome to the Explore page for our Electricity Price Prediction project. This page is designed to help you delve into the data and gain valuable insights of the dataset. Here's what you can explore:
+    Welcome to the Explore page for our Electricity Price Prediction project. This page is designed to help you delve into the data and gain valuable insights from the dataset. Here's what you can explore:
 
-    - **Data Overview**: Get a summary of the dataset, including the number of records, range of dates, and key statistics on electricity prices.
-    - **Visualizations**: Interactive charts and graphs such as time series plots, histograms, and box plots to analyze trends, seasonal patterns, and price distributions.
-    - **Feature Analysis**: Examine correlations between electricity prices and various features like weather conditions, demand, and production sources.
+    - <a href="#data-overview" style="text-decoration: underline; color: inherit;">**Data Overview**</a>: Get a summary of the dataset, including the number of records, range of dates, and key statistics on electricity prices.
+    - <a href="#visualizations" style="text-decoration: underline; color: inherit;">**Visualizations**</a>: Interactive charts and graphs such as time series plots, histograms, and box plots to analyze trends, seasonal patterns, and price distributions.
+    - <a href="#feature-analysis" style="text-decoration: underline; color: inherit;">**Feature Analysis**</a>: Examine correlations between electricity prices and various features like weather conditions, demand, and production sources.
 
     Explore these features to uncover patterns and insights that will aid in accurately predicting electricity prices.
-    """
+    """, unsafe_allow_html=True
 )
+
+
 
 # PART 3.1: Sidebar settings
 with st.sidebar:
@@ -248,7 +250,7 @@ with st.sidebar:
 st.write(3 * "-")
 st.markdown(
     """
-    ### Data Overview:
+    ### Data Overview
     In this section, you'll find a concise summary of the dataset, including the total number of records, the range of dates covered, and essential statistics regarding electricity prices. Understanding the basic characteristics of the data is crucial for interpreting the visualizations and performing further analysis.
     Here we also provide a quick summaries of key statistical measures such as mean, median, and standard deviation for electricity prices. These summaries provide essential context and help identify outliers or unusual patterns in the data.
     """
@@ -267,7 +269,7 @@ st.write(price_stats.T)
 st.write(3 * "-")
 st.markdown(
     """
-    ### Visualizations:
+    ### Visualizations
     Dive deeper into the data with a variety of interactive charts and graphs. From time series plots revealing trends over time to histograms and box plots showcasing price distributions, these visualizations provide invaluable insights into the patterns and fluctuations of electricity prices.
     """
 )
@@ -422,9 +424,10 @@ elif visualization_option == "Histogram of electricity prices":
     # st.pyplot(plt)
 
 st.write(3 * "-")
+# st.subheader("Feature Analysis")
 st.markdown(
     """
-    ### Feature Analysis:
+    ### Feature Analysis
     Investigate the relationship between electricity prices and various influencing factors such as weather conditions, demand fluctuations, and production sources. By exploring correlations and dependencies, you'll gain a deeper understanding of the dynamics driving price movements.
     """
 )
