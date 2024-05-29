@@ -44,6 +44,7 @@ def get_model():
     return retrieved_xgboost_model
 
 # Function to load the dataset
+@st.cache_data()
 def load_new_data():
     # Fetching weather forecast measures for the next 5 days
     forecast_weather_df = weather_measures.forecast_weather_measures(
@@ -296,12 +297,12 @@ if visualization_option == "Linechart for historical predicted electricity price
         as_=['Type', 'Value']
     ).mark_line(point=True).encode(
         x=alt.X('datetime:T', title='Date and Time'),
-        y=alt.Y('Value:Q', title='Electricity Price (DKK)'),
+        y=alt.Y('Value:Q', title='Electricity Price (DKK/kWh)'),
         color=alt.Color('Type:N', title='Type'),
         tooltip=[alt.Tooltip('datetime:T', title='Date', format='%Y-%m-%d'), 
                 alt.Tooltip('datetime:T', title='Time', format='%H:%M'), 
-                alt.Tooltip('Value:Q', title='Actuals (DKK)', format='.4f'),
-                alt.Tooltip('prediction:Q', title='Prediction (DKK)', format='.4f')
+                alt.Tooltip('Value:Q', title='Actuals (DKK/kWh)', format='.4f'),
+                alt.Tooltip('prediction:Q', title='Prediction (DKK/kWh)', format='.4f')
                 ]
     ).properties(
         title='Actual vs Prediction over time',
@@ -326,7 +327,7 @@ elif visualization_option == "Box Plot of Electricity Prices":
     # Create the box plot using Altair
     box_plot = alt.Chart(df_melted).mark_boxplot(size=250).encode(
         x=alt.X('Type:N', title='Type'),
-        y=alt.Y('Electricity Price:Q', title='Electricity Price (DKK)'),
+        y=alt.Y('Electricity Price:Q', title='Electricity Price (DKK/kWh)'),
         color=alt.Color('Type:N', title='Type'),
     ).properties(
         title='Box Plot of Actuals and Predictions',
@@ -343,7 +344,7 @@ elif visualization_option == "Histogram of electricity prices":
 
     # Create the histogram using Altair
     hist_actuals = alt.Chart(df_melted[df_melted['Type'] == 'actuals']).mark_bar(opacity=0.7, color='blue').encode(
-        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price (DKK)'),
+        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price (DKK/kWh)'),
         alt.Y('count()', title='Count'),
         alt.Color('Type:N', legend=alt.Legend(title="Type", orient="top-right"))
     ).properties(
@@ -352,7 +353,7 @@ elif visualization_option == "Histogram of electricity prices":
     ).interactive()
 
     hist_predictions = alt.Chart(df_melted[df_melted['Type'] == 'prediction']).mark_bar(opacity=0.7, color='orange').encode(
-        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price (DKK)'),
+        alt.X('Electricity Price:Q', bin=alt.Bin(maxbins=50), title='Electricity Price (DKK/kWh)'),
         alt.Y('count()', title='Count', axis=None),
         alt.Color('Type:N', legend=alt.Legend(title="Type", orient="top-right"))
     ).properties(
@@ -442,8 +443,13 @@ drop_for_corr = load_all_data().drop(columns=[ 'timestamp',
                                            ]
 )
 
+reorder_drop_for_corr = drop_for_corr[['dk1_spotpricedkk_kwh', 'hour', 'dayofweek', 'day', 'month', 'year',
+       'workday', 'temperature_2m', 'relative_humidity_2m', 'precipitation',
+       'rain', 'snowfall', 'weather_code', 'cloud_cover', 'wind_speed_10m',
+       'wind_gusts_10m']]
+
 # Create the correlation matrix
-correlation_matrix = drop_for_corr.corr()
+correlation_matrix = reorder_drop_for_corr.corr()
  
 # Set the size of the figure
 plt.figure(figsize=(15, 12)) 

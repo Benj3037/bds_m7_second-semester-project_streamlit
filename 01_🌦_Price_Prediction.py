@@ -43,6 +43,7 @@ def get_model():
     return retrieved_xgboost_model
 
 # Function to load the dataset
+@st.cache_data()
 def load_new_data():
     # Fetching weather forecast measures for the next 5 days
     weather_forecast_df = weather_measures.forecast_weather_measures(
@@ -148,6 +149,21 @@ st.markdown("""
             Forecast prices are updated every 24 hours. 
             \nTaxes and fees are not included in the DKK prediction prices.
 """)
+
+with st.expander("📝 **Exam assignment**"):
+    st.markdown(
+        """
+            This is the streamlit application for the final exam assigment. You will find the MLOps pipeline here: 
+            \nGithub repository: [bds_m7_second-semester-project](https://github.com/tobiasmj97/bds_m7_second-semester-project)
+        """
+    )
+
+with st.expander("🏋️ **Chosen model**"):
+    st.markdown(
+        """
+            The model used in this application is an **XGBoost model** trained on historical data
+        """
+    )
 
 # Display the predictions based on the user selection
 st.write(3 * "-")
