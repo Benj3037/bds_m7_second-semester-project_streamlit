@@ -13,7 +13,7 @@ pinned: false
 
 ```
 EXAM ASSIGNMENT:
-This repository contains the Streamlit application for the final exam assigment. You will find the MLOps pipeline here:
+This repository contains the Streamlit application for the final exam assigment. You will find the MLOps pipeline here: 
 
 https://github.com/tobiasmj97/bds_m7_second-semester-project
 ```
